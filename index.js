@@ -207,48 +207,46 @@ function startProxyServer() {
 
   })
 
-  // ── GET /music ───────────────────────────────────
-  // Contoh:
-  // /music?query=dalinda&token=TOKENMU
+  // ── ROUTE: GET /music ───────────────────────────
+app.get('/music', authCheck, async (req, res) => {
 
-  app.get('/music', authCheck, async (req, res) => {
+  const query = req.query.query?.trim()
 
-    const query = req.query.query?.trim()
+  if(!query){
+    return res.status(400).json({
+      status:false,
+      message:'Parameter query wajib diisi.'
+    })
+  }
 
-    if(!query){
+  try{
 
-      return res.status(400).json({
-        status:false,
-        message:'Parameter "query" wajib diisi.'
-      })
-    }
+    const response = await axios.get(
+      'https://api.betabotz.eu.org/api/search/yts',
+      {
+        params:{
+          query,
+          apikey:'Btz-Cynix'
+        },
+        timeout:15000
+      }
+    )
 
-    try{
+    res.json({
+      status:true,
+      result:response.data.result || []
+    })
 
-      const response = await axios.get(
-        'https://api.betabotz.eu.org/api/search/yts',
-        {
-          params:{
-            query,
-            apikey:'Btz-Cynix'
-          },
-          timeout:15000
-        }
-      )
+  }catch(e){
 
-      // langsung terusin response asli
-      res.json(response.data)
+    res.status(500).json({
+      status:false,
+      message:e.message
+    })
 
-    }catch(e){
+  }
 
-      res.status(500).json({
-        status:false,
-        message:e.message || 'Terjadi kesalahan.'
-      })
-
-    }
-
-  })
+})
 
   // ── ROOT ─────────────────────────────────────────
   app.get('/', (req, res) => {
