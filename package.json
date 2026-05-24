@@ -1,0 +1,16 @@
+{
+  "name": "eva-wabot",
+  "version": "2.0.0",
+  "description": "Eva - WhatsApp AI Bot (all-in-one)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "axios": "^1.7.2",
+    "pino": "^9.3.2",
+    "sharp": "^0.33.4",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
