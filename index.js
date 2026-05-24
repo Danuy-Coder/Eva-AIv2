@@ -6,8 +6,8 @@ const sharp = require('sharp')
 const express = require('express')
 const cfg = require('./setting')
 
-const store = makeInMemoryStore({ logger: pino({ level: 'silent' }) })
-
+//const store = makeInMemoryStore({ logger: pino({ level: 'silent' }) })
+const store = null
 // ── DATA SEMENTARA ────────────────────────────────────────
 const warnData = {}
 const antilinkData = {}
@@ -153,7 +153,7 @@ async function startBot() {
     }
   })
 
-  store.bind(sock.ev)
+  //store.bind(sock.ev)
 
   sock.ev.on('connection.update', ({ connection, lastDisconnect, qr }) => {
     if (qr) {
