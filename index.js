@@ -50,242 +50,166 @@ function getMenu() {
 // ── PROXY API SERVER ─────────────────────────────────────
 // ════════════════════════════════════════════════════════
 function startProxyServer() {
-
   const app = express()
 
   app.use(express.json())
 
-  // ── CORS ─────────────────────────────────────────
+  // CORS
   app.use((req, res, next) => {
-
     res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key')
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
 
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, x-api-key'
-    )
-
-    res.header(
-      'Access-Control-Allow-Methods',
-      'GET, POST, OPTIONS'
-    )
-
-    if(req.method === 'OPTIONS'){
+    if (req.method === 'OPTIONS') {
       return res.sendStatus(200)
     }
 
     next()
   })
 
-  // ── AUTH ─────────────────────────────────────────
+  // AUTH
   function authCheck(req, res, next) {
 
     const token =
       req.headers['x-api-key'] ||
       req.query.token
 
-    if(!token || token !== cfg.proxyToken){
-
+    if (!token || token !== cfg.proxyToken) {
       return res.status(401).json({
-        status:false,
-        message:'Unauthorized. Sertakan x-api-key yang valid.'
+        status: false,
+        message: 'Unauthorized'
       })
     }
 
     next()
   }
 
-  // ── GET /ai ──────────────────────────────────────
+  // ── AI ─────────────────────
   app.get('/ai', authCheck, async (req, res) => {
 
-    const text  = req.query.text?.trim()
+    const text = req.query.text?.trim()
 
-    const logic =
-      req.query.logic ||
-      cfg.aiLogic
-
-    if(!text){
-
-      return res.status(400).json({
-        status:false,
-        message:'Parameter "text" wajib diisi.'
+    if (!text) {
+      return res.json({
+        status:false
       })
     }
 
-    try{
+    try {
 
       const response = await axios.get(
         cfg.aiApiUrl,
         {
           params:{
             text,
-            logic,
+            logic:req.query.logic || cfg.aiLogic,
             apikey:cfg.aiApiKey
-          },
-          timeout:15000
+          }
         }
       )
 
-      const result =
-        response.data?.result ||
-        response.data?.answer ||
-        response.data?.message
-
-      if(!result){
-        throw new Error('Respons API kosong')
-      }
-
       res.json({
         status:true,
-        result
+        result:
+          response.data.result ||
+          response.data.answer ||
+          response.data.message
       })
 
-    }catch(e){
+    } catch(e){
 
-      res.status(500).json({
+      res.json({
         status:false,
-        message:e.message || 'Terjadi kesalahan.'
+        message:e.message
       })
 
     }
 
   })
 
-  // ── POST /ai ─────────────────────────────────────
-  app.post('/ai', authCheck, async (req, res) => {
+  // ── PINTEREST ─────────────────────
+  app.get('/pinterest', authCheck, async (req,res)=>{
 
-    const text  = req.body?.text?.trim()
+    const text = req.query.text?.trim()
 
-    const logic =
-      req.body?.logic ||
-      cfg.aiLogic
+    try{
 
-    if(!text){
+      const response = await axios.get(
+        'https://api.betabotz.eu.org/api/search/pinterest',
+        {
+          params:{
+            text,
+            apikey:'Btz-Cynix'
+          }
+        }
+      )
 
-      return res.status(400).json({
+      res.json(response.data)
+
+    }catch(e){
+
+      res.json({
         status:false,
-        message:'Field "text" wajib diisi.'
+        message:e.message
+      })
+
+    }
+
+  })
+
+  // ── MUSIC ─────────────────────
+  app.get('/music', authCheck, async (req,res)=>{
+
+    const query = req.query.query?.trim()
+
+    if(!query){
+      return res.json({
+        status:false,
+        message:'query kosong'
       })
     }
 
     try{
 
       const response = await axios.get(
-        cfg.aiApiUrl,
+        'https://api.betabotz.eu.org/api/search/yts',
         {
           params:{
-            text,
-            logic,
-            apikey:cfg.aiApiKey
+            query,
+            apikey:'Btz-Cynix'
           },
           timeout:15000
         }
       )
 
-      const result =
-        response.data?.result ||
-        response.data?.answer ||
-        response.data?.message
-
-      if(!result){
-        throw new Error('Respons API kosong')
-      }
-
       res.json({
         status:true,
-        result
+        result:response.data.result || []
       })
 
     }catch(e){
 
-      res.status(500).json({
+      res.json({
         status:false,
-        message:e.message || 'Terjadi kesalahan.'
+        message:e.message
       })
 
     }
 
   })
 
-  // ── ROUTE: GET /music ───────────────────────────
-app.get('/music', authCheck, async (req, res) => {
-
-  const query = req.query.query?.trim()
-
-  if(!query){
-    return res.status(400).json({
-      status:false,
-      message:'Parameter query wajib diisi.'
-    })
-  }
-
-  try{
-
-    const response = await axios.get(
-      'https://api.betabotz.eu.org/api/search/yts',
-      {
-        params:{
-          query,
-          apikey:'Btz-Cynix'
-        },
-        timeout:15000
-      }
-    )
-
+  // ROOT
+  app.get('/', (req,res)=>{
     res.json({
       status:true,
-      result:response.data.result || []
+      message:'API aktif'
     })
-
-  }catch(e){
-
-    res.status(500).json({
-      status:false,
-      message:e.message
-    })
-
-  }
-
-})
-
-  // ── ROOT ─────────────────────────────────────────
-  app.get('/', (req, res) => {
-
-    res.json({
-      status:true,
-      bot:cfg.botName,
-      message:'Proxy API aktif.',
-      endpoints:{
-        'GET  /ai?text=...&token=...':
-          'Chat AI via query',
-
-        'POST /ai (body: {text}) + header x-api-key':
-          'Chat AI via body',
-
-        'GET  /music?query=...&token=...':
-          'Search musik YouTube'
-      }
-    })
-
   })
 
-  // ── START ────────────────────────────────────────
-  app.listen(cfg.proxyPort, () => {
-
-    console.log(`\n🌐 Proxy API aktif di port ${cfg.proxyPort}`)
-
-    console.log(
-      `   Endpoint AI    : https://cynix.tokopanel.my.id/ai`
-    )
-
-    console.log(
-      `   Endpoint Music : https://cynix.tokopanel.my.id/music`
-    )
-
-    console.log('')
+  app.listen(cfg.proxyPort, ()=>{
+    console.log('Proxy aktif')
   })
 }
-
 // ════════════════════════════════════════════════════════
 // ── WHATSAPP BOT ─────────────────────────────────────────
 // ════════════════════════════════════════════════════════
