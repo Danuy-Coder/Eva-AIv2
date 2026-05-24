@@ -1,7 +1,7 @@
 module.exports = {
   botName: 'Eva',
   prefix: '.',
-  ownerNumber: ['628xxxxxxxxxx'], // ganti nomor kamu
+  ownerNumber: ['6285956071065'], // ganti nomor kamu
 
   // API Eva AI
   aiApiUrl: 'https://api.betabotz.eu.org/api/search/openai-logic',
