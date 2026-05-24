@@ -10,10 +10,10 @@ module.exports = {
   aiLogic:  'Kamu adalah Eva, asisten AI yang ramah, cerdas, dan helpful untuk edukasi. Jawab dalam bahasa Indonesia secara natural dan mudah dipahami.',
 
   // ── PROXY SERVER ─────────────────────────────────────
-  proxyPort: 3000,
+  proxyPort: 3001,
   // Token rahasia buat akses endpoint /ai dari web
   // Ganti dengan string random yang susah ditebak!
-  proxyToken: 'ganti-dengan-token-rahasia-kamu',
+  proxyToken: '230623',
 
   // ── PESAN ────────────────────────────────────────────
   msg: {
