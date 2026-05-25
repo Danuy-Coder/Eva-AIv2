@@ -146,6 +146,21 @@ function startProxyServer() {
     }
   })
 
+  // ── GET /ytmp3 ───────────────────────────────────────────
+app.get('/ytmp3', authCheck, async (req, res) => {
+  const url = req.query.url?.trim()
+  if (!url) return res.status(400).json({ status: false, message: 'Parameter "url" wajib diisi.' })
+  try {
+    const response = await axios.get('https://api.betabotz.eu.org/api/download/ytmp3', {
+      params: { url, apikey: cfg.aiApiKey },
+      timeout: 30000
+    })
+    res.json({ status: true, result: response.data })
+  } catch (e) {
+    res.status(500).json({ status: false, message: e.message || 'Terjadi kesalahan.' })
+  }
+})
+
   // ── GET / (status) ───────────────────────────────────
   app.get('/', (req, res) => {
     res.json({
