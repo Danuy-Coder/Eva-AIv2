@@ -17,7 +17,7 @@ const fs = require('fs')
 
 const cfg = require('./setting')
 
-const thumbBuffer = fs.readFileSync('./media/thumb.jpg')
+const thumbBuffer = fs.readFileSync('./media/IMG-20260524-WA0041.jpg')
 
 const store = makeInMemoryStore({
   logger: pino({ level: 'silent' })
