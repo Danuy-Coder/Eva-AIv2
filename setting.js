@@ -3,7 +3,7 @@ module.exports = {
   botName: 'Eva',
   prefix: '.',
   ownerNumber: ['628xxxxxxxxxx'], // ganti nomor kamu
-
+  botThumb: 'https://files.catbox.moe/hxqfag.jpg'
   // ── AI API ───────────────────────────────────────────
   aiApiUrl: 'https://api.betabotz.eu.org/api/search/openai-logic',
   aiApiKey: 'Btz-Cynix',
